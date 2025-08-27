@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from math import floor
-
 def hex_to_srgb(hex: str) -> tuple[float]:
     r = int(hex[1:3], base=16) / 255.0
     g = int(hex[3:5], base=16) / 255.0
