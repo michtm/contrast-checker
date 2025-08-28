@@ -32,12 +32,29 @@ def contrast_ratio(color_1: str | tuple[float], color_2: str | tuple[float]) -> 
     l_2 = relative_luminance(color_2)
     return (max(l_1, l_2) + 0.05) / (min(l_1, l_2) + 0.05)
 
+def wcag_compliance_table(colors: list[tuple[str | tuple[float]]]) -> None:
+    header = ['', '', 'Contrast Ratio', 'Normal Text', 'Large Text']
+    table = [header]
+    for color_1, color_2 in colors:
+        ratio = contrast_ratio(color_1, color_2)
+        if ratio >= 7:
+            normal_text = 'AAA'
+            large_text = 'AAA'
+        elif ratio >= 4.5:
+            normal_text = 'AA'
+            large_text = 'AAA'
+        elif ratio >= 3:
+            normal_text = '✗'
+            large_text = 'AA'
+        else:
+            normal_text = '✗'
+            large_text = '✗'
+        table.append([rgb_to_hex(color_1), rgb_to_hex(color_2), ratio, normal_text, large_text])
+    # Stolen from https://stackoverflow.com/a/52247284
+    cols_len = [max([len(str(row[i])) for row in table]) + 3 for i in range(len(header))]
+    row_format = ''.join(['{:>' + str(col_len) + '}' for col_len in cols_len])
+    for row in table:
+        print(row_format.format(*row))
+
 def wcag_compliance(color_1: str | tuple[float], color_2: str | tuple[float]) -> None:
-    ratio = contrast_ratio(color_1, color_2)
-    print('Contrast checker with inputs', rgb_to_hex(color_1), 'and', rgb_to_hex(color_2))
-    print('- Non-bold text < 18pt OR bold text < 14pt')
-    print('  - WCAG AA (>= 4.5:1)', '✓' if ratio >= 4.5 else '✗')
-    print('  - WCAG AAA (>= 7:1)', '✓' if ratio >= 7 else '✗')
-    print('- Non-bold text >= 18pt OR bold text >= 14pt')
-    print('  - WCAG AA (>= 3:1)', '✓' if ratio >= 3 else '✗')
-    print('  - WCAG AAA (>= 4.5:1)', '✓' if ratio >= 4.5 else '✗')
+    wcag_compliance_table([(color_1, color_2)])
